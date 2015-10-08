@@ -8,6 +8,8 @@
 #include <QFileInfo>
 #include <QFile>
 
+#include <stdio.h>
+
 #ifndef VERSION
 #define VERSION "0.0.0"
 #endif
@@ -15,6 +17,7 @@
 QCommandLineOption argFrameWidth  (QStringList() << "x" << "width",  QObject::tr("Set sprite frame width."),  "PIXELS");
 QCommandLineOption argFrameHeight (QStringList() << "y" << "height", QObject::tr("Set sprite frame height."), "PIXELS");
 QCommandLineOption argRange       (QStringList() << "r" << "range",  QObject::tr("Set contrast range of output sprite."), "PERCENT");
+QCommandLineOption argPrint       (QStringList() << "p" << "print",  QObject::tr("Print the output instead of writing to file."));
 
 
 int ceilingMultiple(int x, int multiple)
@@ -43,6 +46,7 @@ int main(int argc, char *argv[])
     parser.addOption(argFrameWidth);
     parser.addOption(argFrameHeight);
     parser.addOption(argRange);
+    parser.addOption(argPrint);
     parser.addPositionalArgument("file",  QObject::tr("Image to convert"), "FILE");
 
     parser.process(app);
@@ -110,10 +114,10 @@ int main(int argc, char *argv[])
     int newwidth  = ceilingMultiple(image.width()  * newframewidth  / framewidth,8);
     int newheight = ceilingMultiple(image.height() * newframeheight / frameheight, newframeheight);
 
-    qDebug() << "   Frame Count: (" << framecountx << "," << framecounty << ")";
-    qDebug() << "Old Frame Size: (" << framewidth << "," << frameheight << ")";
-    qDebug() << "New Frame Size: (" << newframewidth << "," << newframeheight << ")";
-    qDebug() << "New Image Size: (" << newwidth << "," << newheight << ")";
+//    qDebug() << "   Frame Count: (" << framecountx << "," << framecounty << ")";
+//    qDebug() << "Old Frame Size: (" << framewidth << "," << frameheight << ")";
+//    qDebug() << "New Frame Size: (" << newframewidth << "," << newframeheight << ")";
+//    qDebug() << "New Image Size: (" << newwidth << "," << newheight << ")";
 
     QImage newimage(newwidth, newheight, QImage::Format_RGB32);
     newimage.fill(transparent);
@@ -155,8 +159,8 @@ int main(int argc, char *argv[])
     int lowbreak = mid - (mid - low) * range / 100;
     int highbreak = mid + (high - mid) * range / 100;
 
-    qDebug() << " Dynamic Range: ( L" << low << ", M" << mid << ", H" << high << ")";
-    qDebug() << "        Breaks: (" << lowbreak << "," << highbreak << ")" << range << "%";
+//    qDebug() << " Dynamic Range: ( L" << low << ", M" << mid << ", H" << high << ")";
+//    qDebug() << "        Breaks: (" << lowbreak << "," << highbreak << ")" << range << "%";
 
 
 
@@ -253,18 +257,20 @@ int main(int argc, char *argv[])
         }
     }
 
-    QFile file(outfilename);
-    if (file.open(QIODevice::WriteOnly))
+    if (parser.isSet(argPrint))
     {
-        QTextStream outstream(&file);
-        outstream << output;
+        printf("%s",qPrintable(output));
     }
-    file.close();
-
-//    QLabel l;
-//    l.setPixmap(QPixmap::fromImage(newimage));
-
+    else
+    {
+        QFile file(outfilename);
+        if (file.open(QIODevice::WriteOnly))
+        {
+            QTextStream outstream(&file);
+            outstream << output;
+        }
+        file.close();
+    }
 
     return 0;
-//    return app.exec();
 }
