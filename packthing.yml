@@ -1,0 +1,24 @@
+name: "img2dat graphics conversion tool"
+package: "img2dat"
+org: "LameStation LLC"
+url: "http://www.lamestation.com"
+maintainer: "LameStation"
+email: "contact@lamestation.com"
+copyright: "2013-2015"
+license: "GPLv3"
+tagline: "Graphics conversion tool for LameStation."
+description: "Allows easy conversion of any image format to LameStation sprite objects for use in games."
+
+target: 
+  deb: 
+    categories: "Development;IDE"
+    section: "Applications/Editors"
+  mac: 
+    category: "public.app-category.developer-tools"
+
+repo: 
+  - path: "img2dat"
+    url: "https://github.com/lamestation/img2dat.git"
+    branch: "master"
+    type: "qmake"
+    master: true

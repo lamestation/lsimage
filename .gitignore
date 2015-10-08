@@ -37,3 +37,4 @@ Makefile*
 *.exe
 *.swp
 img2dat
+build/
