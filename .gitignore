@@ -32,3 +32,8 @@ Makefile*
 #QtCtreator Qml
 *.qmlproject.user
 *.qmlproject.user.*
+
+*.binary
+*.exe
+*.swp
+img2dat
