@@ -17,7 +17,7 @@
 QCommandLineOption argFrameWidth  (QStringList() << "x" << "width",  QObject::tr("Set sprite frame width."),  "PIXELS");
 QCommandLineOption argFrameHeight (QStringList() << "y" << "height", QObject::tr("Set sprite frame height."), "PIXELS");
 QCommandLineOption argRange       (QStringList() << "r" << "range",  QObject::tr("Set contrast range of output sprite."), "PERCENT");
-QCommandLineOption argPrint       (QStringList() << "p" << "print",  QObject::tr("Print the output instead of writing to file."));
+QCommandLineOption argWrite       (QStringList() << "w" << "write",  QObject::tr("Write the output to file instead of printing."));
 
 
 int ceilingMultiple(int x, int multiple)
@@ -46,7 +46,7 @@ int main(int argc, char *argv[])
     parser.addOption(argFrameWidth);
     parser.addOption(argFrameHeight);
     parser.addOption(argRange);
-    parser.addOption(argPrint);
+    parser.addOption(argWrite);
     parser.addPositionalArgument("file",  QObject::tr("Image to convert"), "FILE");
 
     parser.process(app);
@@ -64,7 +64,19 @@ int main(int argc, char *argv[])
     QString filename = parser.positionalArguments()[0];
 
     QImage image;
-    image.load(filename);
+    QFileInfo fi(filename);
+
+    if (!fi.exists())
+    {
+        qDebug() << "Error: File not found:" << filename;
+        return 1;
+    }
+
+    if (!image.load(filename))
+    {
+        qDebug() << "Error: Failed to load" << filename;
+        return 1;
+    }
 
 
     // set frame size
@@ -194,9 +206,9 @@ int main(int argc, char *argv[])
 
     QString output;
     QTextStream stream(&output);
-    QFileInfo fi(filename);
+    QFileInfo outfi(filename);
 
-    QString outfilename = "gfx_"+fi.completeBaseName()+".spin";
+    QString outfilename = "gfx_"+outfi.completeBaseName()+".spin";
 
     stream  << "' *********************************************************\n"
             << "' " << outfilename << "\n"
@@ -257,11 +269,7 @@ int main(int argc, char *argv[])
         }
     }
 
-    if (parser.isSet(argPrint))
-    {
-        printf("%s",qPrintable(output));
-    }
-    else
+    if (parser.isSet(argWrite))
     {
         QFile file(outfilename);
         if (file.open(QIODevice::WriteOnly))
@@ -270,6 +278,10 @@ int main(int argc, char *argv[])
             outstream << output;
         }
         file.close();
+    }
+    else
+    {
+        printf("%s",qPrintable(output));
     }
 
     return 0;
