@@ -57,7 +57,7 @@ int main(int argc, char *argv[])
     // load image
     if (parser.positionalArguments().length() == 0)
     {
-        qDebug() << "Error: Failed to get image parameter";
+        qDebug() << "Error: Must provide filename of image to convert (e.g. 'img2dat awesome.png')";
         return 1;
     }
 
