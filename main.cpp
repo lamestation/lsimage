@@ -105,9 +105,11 @@ int main(int argc, char *argv[])
     QFileInfo outfi(filename);
     QString outfilename = "gfx_"+outfi.completeBaseName()+".spin";
 
-    Img2Dat img2dat;
-    QString output = img2dat.convert(image, outfilename,
+    Img2Dat img2dat(image, outfilename,
                 framewidth, frameheight, range);
+
+//    img2dat.preview();
+    QString output = img2dat.exportSpin();
 
     if (parser.isSet(argWrite))
     {

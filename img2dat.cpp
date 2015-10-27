@@ -3,10 +3,22 @@
 #include <QPainter>
 #include <QTextStream>
 #include <QCoreApplication>
+#include <QLabel>
 
-Img2Dat::Img2Dat()
+Img2Dat::Img2Dat(QImage image,
+        QString filename,
+        int framewidth,
+        int frameheight,
+        int range)
 {
     setTransparentColor(QColor(255, 0, 255));
+
+    this->image = image;
+    this->filename = filename;
+    this->framewidth = framewidth;
+    this->frameheight = frameheight;
+
+    detectDynamicRange(range);
 }
 
 int Img2Dat::ceilingMultiple(int x, int multiple)
@@ -22,29 +34,19 @@ void Img2Dat::setTransparentColor(QColor color)
     transparent = color;
 }
 
-QString Img2Dat::convert(QImage image,
-        QString filename,
-        int framewidth,
-        int frameheight,
-        int range)
+QImage Img2Dat::chopIntoFrames()
 {
-    // chop into frames
-    int framecountx = image.width() / framewidth;
+    framecountx = image.width() / framewidth;
     if (image.width() % framewidth > 0)
         framecountx++;
-    int framecounty = image.height() / frameheight;
+    framecounty = image.height() / frameheight;
     if (image.height() % frameheight > 0)
         framecounty++;
 
-    int newframewidth  = ceilingMultiple(framewidth, 8);
-    int newframeheight = frameheight;
-    int newwidth  = ceilingMultiple(image.width()  * newframewidth  / framewidth,8);
-    int newheight = ceilingMultiple(image.height() * newframeheight / frameheight, newframeheight);
-
-    //    qDebug() << "   Frame Count: (" << framecountx << "," << framecounty << ")";
-    //    qDebug() << "Old Frame Size: (" << framewidth << "," << frameheight << ")";
-    //    qDebug() << "New Frame Size: (" << newframewidth << "," << newframeheight << ")";
-    //    qDebug() << "New Image Size: (" << newwidth << "," << newheight << ")";
+    newframewidth  = ceilingMultiple(framewidth, 8);
+    newframeheight = frameheight;
+    newwidth  = ceilingMultiple(image.width()  * newframewidth  / framewidth,8);
+    newheight = ceilingMultiple(image.height() * newframeheight / frameheight, newframeheight);
 
     QImage newimage(newwidth, newheight, QImage::Format_RGB32);
     newimage.fill(transparent);
@@ -62,8 +64,12 @@ QString Img2Dat::convert(QImage image,
         }
     }
 
-    // detect dynamic range
-    int low, high;
+    return newimage;
+}
+
+
+void Img2Dat::detectDynamicRange(int range)
+{
     low = high = QColor(image.pixel(0, 0)).lightness();
 
     for (int y = 0; y < image.height(); y++)
@@ -80,47 +86,59 @@ QString Img2Dat::convert(QImage image,
         }
     }
 
+    mid = (low + high) / 2;
+    lowbreak = mid - (mid - low) * range / 100;
+    highbreak = mid + (high - mid) * range / 100;
+}
 
-    // calculate range breakpoints
-    int mid = (low + high) / 2;
-    int lowbreak = mid - (mid - low) * range / 100;
-    int highbreak = mid + (high - mid) * range / 100;
+int ** Img2Dat::buildDataStructure(QImage image)
+{
+    int ** imagedata = new int*[image.height()];
 
-    //    qDebug() << " Dynamic Range: ( L" << low << ", M" << mid << ", H" << high << ")";
-    //    qDebug() << "        Breaks: (" << lowbreak << "," << highbreak << ")" << range << "%";
-
-
-
-    // generate data structure
-    int ** newimagedata = new int*[newimage.height()];
-
-
-    for (int y = 0; y < newimage.height(); y++)
+    for (int y = 0; y < image.height(); y++)
     {
-        newimagedata[y] = new int[newimage.width()];
+        imagedata[y] = new int[image.width()];
 
-        for (int x = 0; x < newimage.width(); x++)
+        for (int x = 0; x < image.width(); x++)
         {
-            QColor color = newimage.pixel(x, y);
+            QColor color = image.pixel(x, y);
             int lightness = color.lightness();
             if (color == transparent)
             {
-                newimagedata[y][x] = 2;
+                imagedata[y][x] = 2;
             }
             else
             {
                 if (lightness >= highbreak)
-                    newimagedata[y][x] = 1;
+                    imagedata[y][x] = 1;
                 else if (lightness <= lowbreak)
-                    newimagedata[y][x] = 0;
+                    imagedata[y][x] = 0;
                 else
-                    newimagedata[y][x] = 3;
+                    imagedata[y][x] = 3;
             }
         }
     }
+    return imagedata;
+}
 
-    // calculate frameboost
-    
+
+void Img2Dat::preview()
+{
+    QImage newimage = chopIntoFrames();
+
+    QLabel l;
+    l.setPixmap(QPixmap::fromImage(newimage));
+    l.show();
+
+    qApp->exec();
+
+}
+
+QString Img2Dat::exportSpin()
+{
+    QImage newimage = chopIntoFrames();
+
+    int ** newimagedata = buildDataStructure(newimage);
     int frameboost = framewidth * frameheight * 2 / 8;
 
     QString output;
@@ -133,7 +151,7 @@ QString Img2Dat::convert(QImage image,
         << "PUB Addr\n"
         << "    return @data\n\n"
         << "DAT\n\n"
-        << "data\n"
+        << "data\n\n"
         << "word    " << frameboost << "\n"
         << "word    " << framewidth << ", " << frameheight << "\n";
 
