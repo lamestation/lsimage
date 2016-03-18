@@ -1,4 +1,4 @@
-#include "img2dat.h"
+#include "imageconverter.h"
 
 #include <QPainter>
 #include <QTextStream>

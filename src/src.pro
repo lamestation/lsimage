@@ -8,10 +8,12 @@ TEMPLATE = lib
 DESTDIR = ../lib/
 
 SOURCES += \
-    img2dat.cpp \
+    imageconverter.cpp \
+    imageconverterdialog.cpp \
 
 HEADERS += \
-    img2dat.h \
+    imageconverter.h \
+    imageconverterdialog.h \
 
 FORMS += \
-    img2dat.ui \
+    imageconverterdialog.ui \

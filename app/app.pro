@@ -1,12 +1,5 @@
-include(../include.pri)
+TEMPLATE  = subdirs
 
-QT += gui widgets
-CONFIG -= app_bundle debug_and_release
-
-TARGET = img2dat
-TEMPLATE = app
-DESTDIR = ../bin/
-
-SOURCES += \
-    main.cpp
-
+SUBDIRS = \
+    cli \
+    gui

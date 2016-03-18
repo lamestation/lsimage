@@ -6,7 +6,7 @@
 #include <QFileInfo>
 #include <QFile>
 
-#include "img2dat.h"
+#include "imageconverter.h"
 
 #include <stdio.h>
 
