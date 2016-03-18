@@ -4,39 +4,53 @@
 #include <QImage>
 #include <QColor>
 
+#include "color.h"
+
 class ImageConverter
 {
 
 private:
+    QString _colorkey;
+    ColorTable _colors; 
     QColor _transparent;
     QImage _image;
-    QString _filename;
-    int framewidth, frameheight;
+
+    float _scale;
+
+    int _framewidth;
+    int _frameheight;
 
     int framecountx, framecounty;
-    int newframewidth, newframeheight;
+    int _newframewidth;
+    int _newframeheight;
     int newwidth, newheight;
 
     int low, high;
     int mid, lowbreak, highbreak;
 
     int ceilingMultiple(int x, int multiple);
-    void detectDynamicRange(int range = 55);
+    void detectDynamicRange(int range);
     int ** buildDataStructure(QImage image);
 
     QString assembleSpinHeader();
 
 public:
-    ImageConverter(QImage image,
-            QString filename,
-            int framewidth = 0,
-            int frameheight = 0,
-            int range = 55);
+    ImageConverter(QImage image = QImage());
 
-    void setTransparentColor(QColor color);
+    void loadImage(QImage image);
+    void setTransparentColor(QColor color = QColor(255, 0, 255));
+    bool setScaleFactor(float scale = 1.0);
+    bool setFrameSize(int w, int h);
+    bool setDynamicRange(int range = 55);
+    bool setColorTable(QString key = "plain");
+
     QImage chopIntoFrames();
+    QImage applyColorFilter(QImage image);
+
+    QImage scaleImage(QImage image, float scale);
+
     int frameboost();
 
-    QString exportSpin();
+    QString toSpin(QString filename);
     void preview();
 };

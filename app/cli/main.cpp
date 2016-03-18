@@ -14,20 +14,21 @@
 #define VERSION "0.0.0"
 #endif
 
-QCommandLineOption argFrameWidth  (QStringList() << "x" << "width",  QObject::tr("Set sprite frame width."),  "PIXELS");
-QCommandLineOption argFrameHeight (QStringList() << "y" << "height", QObject::tr("Set sprite frame height."), "PIXELS");
-QCommandLineOption argRange       (QStringList() << "r" << "range",  QObject::tr("Set contrast range of output sprite."), "PERCENT");
-QCommandLineOption argPrint       (QStringList() << "p" << "print",  QObject::tr("Print the output."));
-
+QCommandLineOption argScale (QStringList() << "s" << "scale",  QObject::tr("Scale image by factor)"),  "FACTOR");
+QCommandLineOption argFrame (QStringList() << "f" << "frame",  QObject::tr("Cut into frames (ex. 16x8)"),  "WxH");
+QCommandLineOption argRange (QStringList() << "r" << "range",  QObject::tr("Set contrast range of output sprite."), "PERCENT");
+QCommandLineOption argPrint (QStringList() << "print",         QObject::tr("Print the output."));
+QCommandLineOption argView  (QStringList() << "view",          QObject::tr("Preview the resulting image."));
+QCommandLineOption argColor (QStringList() << "c" << "color",  QObject::tr("Change the preview color scheme. Options are 'plain', 'whiteblue', and 'redblack'."), "COLOR");
 
 int main(int argc, char *argv[])
 {
-    QCoreApplication app(argc, argv);
+    QApplication app(argc, argv);
 
-    QCoreApplication::setOrganizationName("LameStation LLC");
-    QCoreApplication::setOrganizationDomain("www.lamestation.com");
-    QCoreApplication::setApplicationVersion(VERSION);
-    QCoreApplication::setApplicationName(QObject::tr("img2dat"));
+    QApplication::setOrganizationName("LameStation LLC");
+    QApplication::setOrganizationDomain("www.lamestation.com");
+    QApplication::setApplicationVersion(VERSION);
+    QApplication::setApplicationName(QObject::tr("img2dat"));
 
     QCommandLineParser parser;
     parser.addHelpOption();
@@ -35,10 +36,12 @@ int main(int argc, char *argv[])
     parser.setApplicationDescription(
             QObject::tr("\nConvert images into LameGFX sprite objects."));
 
-    parser.addOption(argFrameWidth);
-    parser.addOption(argFrameHeight);
+    parser.addOption(argFrame);
+    parser.addOption(argScale);
     parser.addOption(argRange);
     parser.addOption(argPrint);
+    parser.addOption(argView);
+    parser.addOption(argColor);
     parser.addPositionalArgument("file",  QObject::tr("Image to convert"), "FILE");
 
     parser.process(app);
@@ -73,18 +76,55 @@ int main(int argc, char *argv[])
     int framewidth, frameheight;
     bool ok = 1;
 
-    if (parser.isSet(argFrameWidth))
-        framewidth = parser.value(argFrameWidth).toInt(&ok);
-    else
-        framewidth = image.width();
+    if (parser.isSet(argFrame))
+    {
+        QStringList pieces = parser.value(argFrame).split('x');
+        
+        if (pieces.size() != 2)
+        {
+            qDebug() << "Error: Frame size must be given as 'WxH' (e.g. 16x8)";
+            return 1;
+        }
 
-    if (parser.isSet(argFrameHeight))
-        frameheight = parser.value(argFrameHeight).toInt(&ok);
+        framewidth = pieces[0].toInt(&ok);
+        if (!ok || framewidth < 0)
+        {
+            qDebug() << "Error: Frame width must be integer. Value given:" << pieces[0];
+            return 1;
+        }
+
+        frameheight = pieces[1].toInt(&ok);
+        if (!ok || frameheight < 0)
+        {
+            qDebug() << "Error: Frame height must be integer. Value given:" << pieces[1];
+            return 1;
+        }
+    }
     else
+    {
+        framewidth = image.width();
         frameheight = image.height();
+    }
 
     framewidth = qMin(framewidth, image.width());
     frameheight = qMin(frameheight, image.height());
+
+
+    // set scale factor
+    float scale;
+    if (parser.isSet(argScale))
+    {
+        scale = parser.value(argScale).toFloat(&ok);
+        if (!ok || scale < 0.0)
+        {
+            qDebug() << "Error: Scale factor must be positive float. Value given:" << scale;
+            return 1;
+        }
+    }
+    else
+    {
+        scale = 1.0;
+    }
 
     // set range size
     int range = 55;
@@ -92,23 +132,37 @@ int main(int argc, char *argv[])
     if (parser.isSet(argRange))
     {
         range = parser.value(argRange).toInt(&ok);
-        if (!ok)
+        if (!ok || range < 0 || range > 100)
         {
-            qDebug() << "Error: Failed to set parameter";
+            qDebug() << "Error: Range is invalid (expected 0-100)";
             return 1;
         }
-
-        range = qMax(range, 0);
-        range = qMin(range, 100);
     }
 
     QFileInfo outfi(filename);
     QString outfilename = outfi.path() + "/gfx_"+outfi.completeBaseName()+".spin";
 
-    ImageConverter imageConverter(image, outfilename,
-                framewidth, frameheight, range);
+    ImageConverter imageConverter(image);
 
-    QString output = imageConverter.exportSpin();
+    if (parser.isSet(argColor))
+    {
+        if (!imageConverter.setColorTable(parser.value(argColor)))
+        {
+            qDebug() << "Error: Color key is invalid (expected plain, whiteblue, or redblack)";
+            return 1;
+        }
+    }
+
+
+    imageConverter.setFrameSize(framewidth, frameheight);
+    imageConverter.setScaleFactor(scale);
+    imageConverter.setDynamicRange(range);
+
+
+    if (parser.isSet(argView))
+        imageConverter.preview();
+
+    QString output = imageConverter.toSpin(outfilename);
 
     if (!parser.isSet(argPrint))
     {
