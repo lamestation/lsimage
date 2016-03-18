@@ -17,17 +17,17 @@
 QCommandLineOption argFrameWidth  (QStringList() << "x" << "width",  QObject::tr("Set sprite frame width."),  "PIXELS");
 QCommandLineOption argFrameHeight (QStringList() << "y" << "height", QObject::tr("Set sprite frame height."), "PIXELS");
 QCommandLineOption argRange       (QStringList() << "r" << "range",  QObject::tr("Set contrast range of output sprite."), "PERCENT");
-QCommandLineOption argWrite       (QStringList() << "w" << "write",  QObject::tr("Write the output to file instead of printing."));
+QCommandLineOption argPrint       (QStringList() << "p" << "print",  QObject::tr("Print the output."));
 
 
 int main(int argc, char *argv[])
 {
-    QApplication app(argc, argv);
+    QCoreApplication app(argc, argv);
 
-    QApplication::setOrganizationName("LameStation LLC");
-    QApplication::setOrganizationDomain("www.lamestation.com");
-    QApplication::setApplicationVersion(VERSION);
-    QApplication::setApplicationName(QObject::tr("img2dat"));
+    QCoreApplication::setOrganizationName("LameStation LLC");
+    QCoreApplication::setOrganizationDomain("www.lamestation.com");
+    QCoreApplication::setApplicationVersion(VERSION);
+    QCoreApplication::setApplicationName(QObject::tr("img2dat"));
 
     QCommandLineParser parser;
     parser.addHelpOption();
@@ -38,7 +38,7 @@ int main(int argc, char *argv[])
     parser.addOption(argFrameWidth);
     parser.addOption(argFrameHeight);
     parser.addOption(argRange);
-    parser.addOption(argWrite);
+    parser.addOption(argPrint);
     parser.addPositionalArgument("file",  QObject::tr("Image to convert"), "FILE");
 
     parser.process(app);
@@ -103,15 +103,14 @@ int main(int argc, char *argv[])
     }
 
     QFileInfo outfi(filename);
-    QString outfilename = "gfx_"+outfi.completeBaseName()+".spin";
+    QString outfilename = outfi.path() + "/gfx_"+outfi.completeBaseName()+".spin";
 
     ImageConverter imageConverter(image, outfilename,
                 framewidth, frameheight, range);
 
-    imageConverter.preview();
     QString output = imageConverter.exportSpin();
 
-    if (parser.isSet(argWrite))
+    if (!parser.isSet(argPrint))
     {
         QFile file(outfilename);
         if (file.open(QIODevice::WriteOnly))
@@ -123,7 +122,7 @@ int main(int argc, char *argv[])
     }
     else
     {
-        printf("%s",qPrintable(output));
+        qDebug() << qPrintable(output);
     }
 
     return 0;

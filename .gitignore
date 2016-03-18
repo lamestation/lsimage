@@ -38,3 +38,6 @@ Makefile*
 *.swp
 img2dat
 build/
+bin/
+lib/
+*.spin

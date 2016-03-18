@@ -1,12 +1,7 @@
-QT += widgets
+TEMPLATE  = subdirs
 
-TARGET = img2dat 
-TEMPLATE = app
-CONFIG -= app_bundle debug_and_release
+SUBDIRS = \
+    src \
+    app
 
-SOURCES += \
-    main.cpp \
-    img2dat.cpp \
-
-HEADERS += \
-    img2dat.h \
+app.depends = src
