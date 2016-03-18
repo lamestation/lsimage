@@ -1,13 +1,16 @@
+#pragma once
+
 #include <QString>
 #include <QImage>
 #include <QColor>
 
-class Img2Dat {
+class ImageConverter
+{
 
 private:
-    QColor transparent;
-    QImage image;
-    QString filename;
+    QColor _transparent;
+    QImage _image;
+    QString _filename;
     int framewidth, frameheight;
 
     int framecountx, framecounty;
@@ -18,9 +21,13 @@ private:
     int mid, lowbreak, highbreak;
 
     int ceilingMultiple(int x, int multiple);
+    void detectDynamicRange(int range = 55);
+    int ** buildDataStructure(QImage image);
+
+    QString assembleSpinHeader();
 
 public:
-    Img2Dat(QImage image,
+    ImageConverter(QImage image,
             QString filename,
             int framewidth = 0,
             int frameheight = 0,
@@ -28,8 +35,7 @@ public:
 
     void setTransparentColor(QColor color);
     QImage chopIntoFrames();
-    void detectDynamicRange(int range = 55);
-    int ** buildDataStructure(QImage image);
+    int frameboost();
 
     QString exportSpin();
     void preview();

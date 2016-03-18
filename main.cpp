@@ -22,12 +22,12 @@ QCommandLineOption argWrite       (QStringList() << "w" << "write",  QObject::tr
 
 int main(int argc, char *argv[])
 {
-    QCoreApplication app(argc, argv);
+    QApplication app(argc, argv);
 
-    QCoreApplication::setOrganizationName("LameStation LLC");
-    QCoreApplication::setOrganizationDomain("www.lamestation.com");
-    QCoreApplication::setApplicationVersion(VERSION);
-    QCoreApplication::setApplicationName(QObject::tr("img2dat"));
+    QApplication::setOrganizationName("LameStation LLC");
+    QApplication::setOrganizationDomain("www.lamestation.com");
+    QApplication::setApplicationVersion(VERSION);
+    QApplication::setApplicationName(QObject::tr("img2dat"));
 
     QCommandLineParser parser;
     parser.addHelpOption();
@@ -105,11 +105,11 @@ int main(int argc, char *argv[])
     QFileInfo outfi(filename);
     QString outfilename = "gfx_"+outfi.completeBaseName()+".spin";
 
-    Img2Dat img2dat(image, outfilename,
+    ImageConverter imageConverter(image, outfilename,
                 framewidth, frameheight, range);
 
-//    img2dat.preview();
-    QString output = img2dat.exportSpin();
+    imageConverter.preview();
+    QString output = imageConverter.exportSpin();
 
     if (parser.isSet(argWrite))
     {
