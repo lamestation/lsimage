@@ -6,7 +6,7 @@
 #include <QLabel>
 #include <QDebug>
 
-ImageConverter::ImageConverter(QImage image)
+ImageConverter::ImageConverter(LameImage image)
 {
     // set defaults
     setColorTable();
@@ -15,12 +15,12 @@ ImageConverter::ImageConverter(QImage image)
     loadImage(image);
 }
 
-void ImageConverter::loadImage(QImage image)
+void ImageConverter::loadImage(LameImage image)
 {
     _image = image;
     setFrameSize(_image.width(), _image.height());
     setDynamicRange();
-    _image = applyColorFilter(_image);
+    recolor();
 }
 
 bool ImageConverter::setColorTable(QString key)
@@ -29,7 +29,7 @@ bool ImageConverter::setColorTable(QString key)
         return false;
 
     _colorkey = key;
-    _image = applyColorFilter(_image);
+    _image.setColorTable(_colors[_colorkey]);
     return true;
 }
 
@@ -44,12 +44,7 @@ bool ImageConverter::setScaleFactor(float scale)
 
 bool ImageConverter::setFrameSize(int w, int h)
 {
-    if (w < 0 || h < 0)
-        return false;
-
-    _framewidth = w;
-    _frameheight = h;
-    return true;
+    return _image.setFrameSize(w, h);
 }
 
 bool ImageConverter::setDynamicRange(int range)
@@ -66,41 +61,39 @@ void ImageConverter::setTransparentColor(QColor color)
     _transparent = color;
 }
 
-QImage ImageConverter::chopIntoFrames()
+LameImage ImageConverter::chopIntoFrames()
 {
-    framecountx = _image.width() / _framewidth;
-    if (_image.width() % _framewidth > 0)
-        framecountx++;
-    framecounty = _image.height() / _frameheight;
-    if (_image.height() % _frameheight > 0)
-        framecounty++;
+    LameImage resized = _image.scaleByFactor(_scale);
 
-    _newframewidth  = ceilingMultiple(_framewidth, 8);
-    _newframeheight = _frameheight;
-    newwidth  = ceilingMultiple(_image.width()  * _newframewidth  / _framewidth,8);
-    newheight = ceilingMultiple(_image.height() * _newframeheight / _frameheight, _newframeheight);
+    _newframewidth  = ceilingMultiple(resized.frameWidth(), 8);
+    _newframeheight = resized.frameHeight();
+    newwidth  = ceilingMultiple(resized.width()  * _newframewidth  / resized.frameWidth(),8);
+    newheight = ceilingMultiple(resized.height() * _newframeheight / resized.frameHeight(), _newframeheight);
 
-    QImage newimage(newwidth, newheight, QImage::Format_RGB32);
+    LameImage newimage(newwidth, newheight, LameImage::Format_RGB32);
+    newimage.setFrameSize(_newframewidth, _newframeheight);
     newimage.fill(2);
 
     QPainter paint(&newimage);
 
-    for (int fy = 0; fy < framecounty; fy++)
+    for (int fy = 0; fy < resized.frameCountY(); fy++)
     {
-        for (int fx = 0; fx < framecountx; fx++)
+        for (int fx = 0; fx < resized.frameCountX(); fx++)
         {
             paint.drawImage(
-                        fx*_newframewidth,   fy*_newframeheight,
-                        _image,
-                        fx*_framewidth,      fy*_frameheight,
-                        _framewidth,         _frameheight
+                        fx*_newframewidth,          fy*_newframeheight,
+                        resized,
+                        fx*resized.frameWidth(),    fy*resized.frameHeight(),
+                        resized.frameWidth(),       resized.frameHeight()
                     );
         }
     }
 
     paint.end();
 
-    return scaleImage(newimage, _scale);
+    newimage = applyColorFilter(newimage);
+
+    return newimage;
 }
 
 
@@ -127,10 +120,16 @@ void ImageConverter::detectDynamicRange(int range)
     highbreak = mid + (high - mid) * range / 100;
 }
 
-
-QImage ImageConverter::applyColorFilter(QImage image)
+void ImageConverter::recolor()
 {
-    QImage newimage(image.size(), QImage::Format_Indexed8);
+    _image = applyColorFilter(_image);
+}
+
+
+LameImage ImageConverter::applyColorFilter(LameImage image)
+{
+    LameImage newimage(image.size(), LameImage::Format_Indexed8);
+    newimage.setFrameSize(image.frameWidth(), image.frameHeight());
     newimage.setColorTable(_colors[_colorkey]);
 
     for (int y = 0; y < image.height(); y++)
@@ -159,44 +158,11 @@ QImage ImageConverter::applyColorFilter(QImage image)
     return newimage;
 }
 
-
-int ** ImageConverter::buildDataStructure(QImage image)
-{
-    int ** imagedata = new int*[image.height()];
-
-    for (int y = 0; y < image.height(); y++)
-    {
-        imagedata[y] = new int[image.width()];
-
-        for (int x = 0; x < image.width(); x++)
-        {
-            QColor color = image.pixel(x, y);
-            int lightness = color.lightness();
-
-            if (color == _transparent)
-            {
-                imagedata[y][x] = 2;
-            }
-            else
-            {
-                if (lightness >= highbreak)
-                    imagedata[y][x] = 1;
-                else if (lightness <= lowbreak)
-                    imagedata[y][x] = 0;
-                else
-                    imagedata[y][x] = 3;
-            }
-        }
-    }
-    return imagedata;
-}
-
-
 void ImageConverter::preview()
 {
 
     QLabel l;
-    l.setPixmap(QPixmap::fromImage(scaleImage(_image, _scale))); 
+    l.setPixmap(QPixmap::fromImage(_image));
     l.show();
 
     qApp->exec();
@@ -210,9 +176,7 @@ void ImageConverter::preview()
 
 QString ImageConverter::toSpin(QString filename)
 {
-    QImage newimage = chopIntoFrames();
-
-    int ** newimagedata = buildDataStructure(newimage);
+    LameImage newimage = chopIntoFrames();
 
     QString output;
     QTextStream stream(&output);
@@ -225,15 +189,14 @@ QString ImageConverter::toSpin(QString filename)
             << "    return @gfx_data\n\n"
             << "DAT\n\n"
             << "gfx_data\n\n"
-            << "word    " << frameboost() << "\n"
-            << "word    " << _framewidth << ", " << _frameheight << "\n";
-
+            << "word    " << newimage.frameboost() << "\n"
+            << "word    " << newimage.frameWidth() << ", " << newimage.frameHeight() << "\n";
 
     // print data
     unsigned short word = 0;
-    for (int fy = 0; fy < framecounty; fy++)
+    for (int fy = 0; fy < newimage.frameCountY(); fy++)
     {
-        for (int fx = 0; fx < framecountx; fx++)
+        for (int fx = 0; fx < newimage.frameCountX(); fx++)
         {
             for (int y = 0; y < _newframeheight; y++)
             {
@@ -245,7 +208,7 @@ QString ImageConverter::toSpin(QString filename)
                     {
                         word = 0;
                     }
-                    word += (newimagedata[fy*_newframeheight+y][fx*_newframewidth+x] << ((x % 8)*2));
+                    word += (newimage.pixelIndex(fx*_newframewidth+x, fy*_newframeheight+y) << ((x % 8)*2));
 
                     if (x % 8 == 7)
                     {
@@ -259,7 +222,7 @@ QString ImageConverter::toSpin(QString filename)
                 for (int x = 0; x < _newframewidth; x++)
                 {
                     QString s;
-                    switch (newimagedata[fy*_newframeheight+y][fx*_newframewidth+x])
+                    switch (newimage.pixelIndex(fx*_newframewidth+x, fy*_newframeheight+y))
                     {
                         case 2: s = " ";
                                 break;
@@ -290,14 +253,3 @@ int ImageConverter::ceilingMultiple(int x, int multiple)
     else
         return ((x / multiple) + 1) * multiple;
 }
-
-QImage ImageConverter::scaleImage(QImage image, float scale)
-{
-    return image.scaledToWidth( (int) (((float) image.width())*scale) );
-}
-
-int ImageConverter::frameboost()
-{
-    return _framewidth * _frameheight * 2 / 8;
-}
-

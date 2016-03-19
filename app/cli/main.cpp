@@ -18,17 +18,17 @@ QCommandLineOption argScale (QStringList() << "s" << "scale",  QObject::tr("Scal
 QCommandLineOption argFrame (QStringList() << "f" << "frame",  QObject::tr("Cut into frames (ex. 16x8)"),  "WxH");
 QCommandLineOption argRange (QStringList() << "r" << "range",  QObject::tr("Set contrast range of output sprite."), "PERCENT");
 QCommandLineOption argPrint (QStringList() << "print",         QObject::tr("Print the output."));
-QCommandLineOption argView  (QStringList() << "view",          QObject::tr("Preview the resulting image."));
+//QCommandLineOption argView  (QStringList() << "view",          QObject::tr("Preview the resulting image."));
 QCommandLineOption argColor (QStringList() << "c" << "color",  QObject::tr("Change the preview color scheme. Options are 'plain', 'whiteblue', and 'redblack'."), "COLOR");
 
 int main(int argc, char *argv[])
 {
-    QApplication app(argc, argv);
+    QCoreApplication app(argc, argv);
 
-    QApplication::setOrganizationName("LameStation LLC");
-    QApplication::setOrganizationDomain("www.lamestation.com");
-    QApplication::setApplicationVersion(VERSION);
-    QApplication::setApplicationName(QObject::tr("img2dat"));
+    QCoreApplication::setOrganizationName("LameStation LLC");
+    QCoreApplication::setOrganizationDomain("www.lamestation.com");
+    QCoreApplication::setApplicationVersion(VERSION);
+    QCoreApplication::setApplicationName(QObject::tr("img2dat"));
 
     QCommandLineParser parser;
     parser.addHelpOption();
@@ -40,7 +40,7 @@ int main(int argc, char *argv[])
     parser.addOption(argScale);
     parser.addOption(argRange);
     parser.addOption(argPrint);
-    parser.addOption(argView);
+//    parser.addOption(argView);
     parser.addOption(argColor);
     parser.addPositionalArgument("file",  QObject::tr("Image to convert"), "FILE");
 
@@ -153,14 +153,13 @@ int main(int argc, char *argv[])
         }
     }
 
-
     imageConverter.setFrameSize(framewidth, frameheight);
     imageConverter.setScaleFactor(scale);
     imageConverter.setDynamicRange(range);
+    imageConverter.recolor();
 
-
-    if (parser.isSet(argView))
-        imageConverter.preview();
+//    if (parser.isSet(argView))
+//        imageConverter.preview();
 
     QString output = imageConverter.toSpin(outfilename);
 
