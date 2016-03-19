@@ -61,7 +61,12 @@ void ImageConverter::setTransparentColor(QColor color)
     _transparent = color;
 }
 
-LameImage ImageConverter::chopIntoFrames()
+LameImage ImageConverter::originalImage()
+{
+    return _image;
+}
+
+LameImage ImageConverter::resultImage()
 {
     LameImage resized = _image.scaleByFactor(_scale);
 
@@ -162,12 +167,12 @@ void ImageConverter::preview()
 {
 
     QLabel l;
-    l.setPixmap(QPixmap::fromImage(_image));
+    l.setPixmap(QPixmap::fromImage(originalImage()));
     l.show();
 
     qApp->exec();
 
-    l.setPixmap(QPixmap::fromImage(chopIntoFrames()));
+    l.setPixmap(QPixmap::fromImage(resultImage()));
     l.show();
 
     qApp->exec();
@@ -176,7 +181,7 @@ void ImageConverter::preview()
 
 QString ImageConverter::toSpin(QString filename)
 {
-    LameImage newimage = chopIntoFrames();
+    LameImage newimage = resultImage();
 
     QString output;
     QTextStream stream(&output);

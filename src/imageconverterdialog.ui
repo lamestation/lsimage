@@ -17,27 +17,21 @@
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_2">
      <item>
-      <widget class="QPushButton" name="open">
+      <widget class="QPushButton" name="openButton">
        <property name="text">
         <string>Open</string>
        </property>
       </widget>
      </item>
      <item>
-      <spacer name="horizontalSpacer_3">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
+      <widget class="QPushButton" name="exportButton">
+       <property name="text">
+        <string>Export</string>
        </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
+      </widget>
      </item>
      <item>
-      <widget class="QCheckBox" name="chopEnable">
+      <widget class="QCheckBox" name="frameEnable">
        <property name="font">
         <font>
          <pointsize>10</pointsize>
@@ -49,7 +43,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QSpinBox" name="chopX">
+      <widget class="QSpinBox" name="frameWidth">
        <property name="readOnly">
         <bool>false</bool>
        </property>
@@ -65,7 +59,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QSpinBox" name="chopY">
+      <widget class="QSpinBox" name="frameHeight">
        <property name="minimum">
         <number>1</number>
        </property>
@@ -115,11 +109,17 @@
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="exportButton">
-       <property name="text">
-        <string>Export</string>
+      <spacer name="horizontalSpacer_3">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
        </property>
-      </widget>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
      </item>
     </layout>
    </item>
@@ -591,16 +591,10 @@
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
-              <property name="minimumSize">
-               <size>
-                <width>64</width>
-                <height>64</height>
-               </size>
-              </property>
               <property name="maximumSize">
                <size>
-                <width>64</width>
-                <height>64</height>
+                <width>512</width>
+                <height>512</height>
                </size>
               </property>
               <property name="palette">
@@ -1525,16 +1519,10 @@
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
-              <property name="minimumSize">
-               <size>
-                <width>64</width>
-                <height>64</height>
-               </size>
-              </property>
               <property name="maximumSize">
                <size>
-                <width>64</width>
-                <height>64</height>
+                <width>512</width>
+                <height>512</height>
                </size>
               </property>
               <property name="palette">

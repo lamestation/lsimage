@@ -137,10 +137,12 @@ public:
     bool setDynamicRange(int range = 55);
     bool setColorTable(QString key = "plain");
 
-    LameImage chopIntoFrames();
     LameImage applyColorFilter(LameImage image);
     QString toSpin(QString filename);
 
     void preview();
     void recolor();
+
+    LameImage originalImage();
+    LameImage resultImage();
 };
