@@ -14,7 +14,8 @@ SOURCES += \
 HEADERS += \
     imageconverter.h \
     imageconverterdialog.h \
-    color.h
+    color.h \
+    lameimage.h \
 
 FORMS += \
     imageconverterdialog.ui \
