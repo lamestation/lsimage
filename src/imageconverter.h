@@ -101,6 +101,13 @@ public:
                 );
         return newimage;
     }
+
+    LameImage convertToFormat(Format format, Qt::ImageConversionFlags flags = Qt::AutoColor)
+    {
+        LameImage newimage = QImage::convertToFormat(format, flags);
+        newimage.setFrameSize(frameWidth(), frameHeight());
+        return newimage;
+    }
 };
 
 class ImageConverter
@@ -134,8 +141,10 @@ public:
     void setTransparentColor(QColor color = QColor(255, 0, 255));
     bool setScaleFactor(float scale = 1.0);
     bool setFrameSize(int w, int h);
+    bool setFrameWidth(int w);
+    bool setFrameHeight(int h);
     bool setDynamicRange(int range = 55);
-    bool setColorTable(QString key = "plain");
+    bool setColorTable(QString key = "Plain");
 
     LameImage applyColorFilter(LameImage image);
     QString toSpin(QString filename);
