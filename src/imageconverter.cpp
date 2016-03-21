@@ -10,6 +10,8 @@
 ImageConverter::ImageConverter(LameImage image)
 {
     // set defaults
+    _range = 55;
+    _offset = 0;
     setColorTable();
     setTransparentColor();
     setScaleFactor();
@@ -30,7 +32,7 @@ bool ImageConverter::setColorTable(QString key)
         return false;
 
     _colorkey = key;
-    _image.setColorTable(_colors[_colorkey]);
+    _result.setColorTable(_colors[_colorkey]);
     return true;
 }
 
@@ -45,17 +47,17 @@ bool ImageConverter::setScaleFactor(float scale)
 
 bool ImageConverter::setFrameSize(int w, int h)
 {
-    return _image.setFrameSize(w, h);
+    return _result.setFrameSize(w, h);
 }
 
 bool ImageConverter::setFrameWidth(int w)
 {
-    return _image.setFrameSize(w, _image.frameHeight());
+    return _result.setFrameSize(w, _result.frameHeight());
 }
 
 bool ImageConverter::setFrameHeight(int h)
 {
-    return _image.setFrameSize(_image.frameWidth(), h);
+    return _result.setFrameSize(_result.frameWidth(), h);
 }
 
 bool ImageConverter::setDynamicRange(int range)
@@ -63,7 +65,18 @@ bool ImageConverter::setDynamicRange(int range)
     if (range < 0 || range > 100)
         return false;
 
-    detectDynamicRange(range);
+    _range = range;
+    detectDynamicRange();
+    return true;
+}
+
+bool ImageConverter::setRangeOffset(int offset)
+{
+    if (offset < -128 || offset > 127)
+        return false;
+
+    _offset = offset;
+    detectDynamicRange();
     return true;
 }
 
@@ -79,7 +92,7 @@ LameImage ImageConverter::originalImage()
 
 LameImage ImageConverter::resultImage()
 {
-    LameImage resized = _image.scaleByFactor(_scale);
+    LameImage resized = _result.scaleByFactor(_scale);
 
     _newframewidth  = ceilingMultiple(resized.frameWidth(), 8);
     _newframeheight = resized.frameHeight();
@@ -113,7 +126,7 @@ LameImage ImageConverter::resultImage()
 }
 
 
-void ImageConverter::detectDynamicRange(int range)
+void ImageConverter::detectDynamicRange()
 {
     low = high = QColor(_image.pixel(0, 0)).lightness();
 
@@ -131,16 +144,15 @@ void ImageConverter::detectDynamicRange(int range)
         }
     }
 
-    mid = (low + high) / 2;
-    lowbreak = mid - (mid - low) * range / 100;
-    highbreak = mid + (high - mid) * range / 100;
+    mid = (low + high) / 2 + _offset;
+    lowbreak = mid - (mid - low) * _range / 100;
+    highbreak = mid + (high - mid) * _range / 100;
 }
 
 void ImageConverter::recolor()
 {
-    _image = applyColorFilter(_image);
+    _result = applyColorFilter(_image);
 }
-
 
 LameImage ImageConverter::applyColorFilter(LameImage image)
 {

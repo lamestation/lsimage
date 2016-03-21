@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>672</width>
-    <height>369</height>
+    <width>793</width>
+    <height>383</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -255,6 +255,43 @@
       </widget>
      </item>
      <item>
+      <widget class="QLabel" name="label_4">
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>Offset:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QSlider" name="offset">
+       <property name="minimumSize">
+        <size>
+         <width>70</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>70</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="minimum">
+        <number>-128</number>
+       </property>
+       <property name="maximum">
+        <number>127</number>
+       </property>
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+      </widget>
+     </item>
+     <item>
       <spacer name="horizontalSpacer_3">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
@@ -270,15 +307,26 @@
     </layout>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout">
+    <layout class="QHBoxLayout" name="horizontalLayout_6">
      <item>
-      <layout class="QVBoxLayout" name="verticalLayout">
+      <layout class="QVBoxLayout" name="verticalLayout_4">
        <item>
-        <widget class="QLabel" name="resultTitle_2">
-         <property name="text">
-          <string>Original</string>
-         </property>
-        </widget>
+        <layout class="QHBoxLayout" name="horizontalLayout">
+         <item>
+          <widget class="QLabel" name="originalTitle">
+           <property name="text">
+            <string>Original</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="originalSize">
+           <property name="text">
+            <string>(0, 0)</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </item>
        <item>
         <widget class="QScrollArea" name="originalViewport">
@@ -354,8 +402,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>319</width>
-            <height>285</height>
+            <width>380</width>
+            <height>297</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -856,13 +904,24 @@
       </layout>
      </item>
      <item>
-      <layout class="QVBoxLayout" name="verticalLayout_4">
+      <layout class="QVBoxLayout" name="verticalLayout">
        <item>
-        <widget class="QLabel" name="resultTitle">
-         <property name="text">
-          <string>Result</string>
-         </property>
-        </widget>
+        <layout class="QHBoxLayout" name="horizontalLayout_3">
+         <item>
+          <widget class="QLabel" name="resultTitle">
+           <property name="text">
+            <string>Result</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="resultSize">
+           <property name="text">
+            <string>(0, 0)</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </item>
        <item>
         <widget class="QScrollArea" name="resultViewport">
@@ -938,8 +997,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>319</width>
-            <height>285</height>
+            <width>379</width>
+            <height>297</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_2">

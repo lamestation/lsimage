@@ -15,6 +15,9 @@ ImageConverterDialog::ImageConverterDialog(QWidget *parent)
     scaleValidator.setDecimals(3);
     ui.scale->setValidator(&scaleValidator);
 
+    _title = tr("LSImage");
+    setWindowTitle(_title);
+
     _zoom = 4;
 
     connect(ui.openButton,  SIGNAL(clicked()),                  this, SLOT(open()));
@@ -25,6 +28,7 @@ ImageConverterDialog::ImageConverterDialog(QWidget *parent)
 
     connect(ui.scale,       SIGNAL(editingFinished()),          this, SLOT(scaleChanged()));
     connect(ui.range,       SIGNAL(valueChanged(int)),          this, SLOT(rangeChanged()));
+    connect(ui.offset,      SIGNAL(valueChanged(int)),          this, SLOT(offsetChanged()));
     connect(ui.zoom,        SIGNAL(currentIndexChanged(int)),   this, SLOT(zoomChanged()));
 
     setTransparentColor();
@@ -57,6 +61,12 @@ void ImageConverterDialog::setRange(int range)
     _converter.setDynamicRange(range);
 }
 
+void ImageConverterDialog::setRangeOffset(int offset)
+{
+    _converter.setRangeOffset(offset);
+}
+
+
 void ImageConverterDialog::disable()
 {
     ui.originalImage->hide();
@@ -81,6 +91,7 @@ void ImageConverterDialog::setEnabled(bool enabled)
     ui.zoom->setEnabled(enabled);
     ui.scale->setEnabled(enabled);
     ui.range->setEnabled(enabled);
+    ui.offset->setEnabled(enabled);
 }
 
 void ImageConverterDialog::setFrameSizeEnabled(bool enabled)
@@ -131,17 +142,19 @@ void ImageConverterDialog::openFile(QString name)
 
     _filename = name;
 
+    setWindowTitle(tr("%1 - %2").arg(QFileInfo(name).fileName()).arg(_title));
+
     QImage img(name);
 
-    int framew = 0, frameh = 0;
-    QString fw = img.text("LameGFX:framesize:w");
-    QString fh = img.text("LameGFX:framesize:h");
-
-    if (!fw.isEmpty())
-        framew = fw.toInt();
-
-    if (!fh.isEmpty())
-        frameh = fh.toInt();
+//    int framew = 0, frameh = 0;
+//    QString fw = img.text("LameGFX:framesize:w");
+//    QString fh = img.text("LameGFX:framesize:h");
+//
+//    if (!fw.isEmpty())
+//        framew = fw.toInt();
+//
+//    if (!fh.isEmpty())
+//        frameh = fh.toInt();
 
     _converter.loadImage(img);
     _converter.setColorTable("Plain");
@@ -153,18 +166,20 @@ void ImageConverterDialog::openFile(QString name)
     enable();
     setScale(ui.scale->text().toFloat());
     setRange(ui.range->value());
+    setRangeOffset(ui.offset->value());
     updateImage();
 }
 
 void ImageConverterDialog::updateImage()
 {
-    ui.originalImage->setPixmap(
-            QPixmap::fromImage(
-                _converter.originalImage().scaleByFactor(_zoom)
-            )
-        );
+    LameImage original = _converter.originalImage();
+    ui.originalSize->setText(tr("(%1, %2)").arg(original.width()).arg(original.height()));
+
+    ui.originalImage->setPixmap(QPixmap::fromImage(original.scaleByFactor(_zoom)));
 
     LameImage result = _converter.resultImage();
+    ui.resultSize->setText(tr("(%1, %2)").arg(result.width()).arg(result.height()));
+
     result = result.scaleByFactor(_zoom);
     result = result.convertToFormat(QImage::Format_RGB32);
 
@@ -238,7 +253,6 @@ void ImageConverterDialog::frameHeightChanged(int h)
     updateImage();
 }
 
-
 void ImageConverterDialog::scaleChanged()
 {
     setScale(ui.scale->text().toFloat());
@@ -248,6 +262,12 @@ void ImageConverterDialog::scaleChanged()
 void ImageConverterDialog::rangeChanged()
 {
     setRange(ui.range->value());
+    updateImage();
+}
+
+void ImageConverterDialog::offsetChanged()
+{
+    setRangeOffset(ui.offset->value());
     updateImage();
 }
 

@@ -24,12 +24,15 @@ class ImageConverterDialog : public QWidget
 
     int _zoom;
 
+    QString _title;
+
 public:
     explicit ImageConverterDialog(QWidget *parent = 0);
     ~ImageConverterDialog();
     void setTransparentColor(QColor color = QColor(255, 0, 255));
     void setScale(float scale = 1.0);
     void setRange(int range = 55);
+    void setRangeOffset(int offset = 0);
 
 public slots:
     void updateImage();
@@ -48,6 +51,7 @@ public slots:
     void setFrameSizeEnabled(bool enabled);
 
     void scaleChanged();
-    void rangeChanged();
     void zoomChanged();
+    void rangeChanged();
+    void offsetChanged();
 };

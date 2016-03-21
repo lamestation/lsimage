@@ -15,8 +15,11 @@ private:
     ColorTable _colors; 
     QColor _transparent;
     LameImage _image;
+    LameImage _result;
 
     float _scale;
+    int _range;
+    int _offset;
 
     int framecountx, framecounty;
     int _newframewidth;
@@ -27,7 +30,7 @@ private:
     int mid, lowbreak, highbreak;
 
     int ceilingMultiple(int x, int multiple);
-    void detectDynamicRange(int range);
+    void detectDynamicRange();
 
     QString assembleSpinHeader();
 
@@ -41,6 +44,7 @@ public:
     bool setFrameWidth(int w);
     bool setFrameHeight(int h);
     bool setDynamicRange(int range = 55);
+    bool setRangeOffset(int offset = 0);
     bool setColorTable(QString key = "Plain");
 
     LameImage applyColorFilter(LameImage image);

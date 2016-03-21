@@ -10,12 +10,14 @@ DESTDIR = ../lib/
 SOURCES += \
     imageconverter.cpp \
     imageconverterdialog.cpp \
+    imagefunctions.cpp \
 
 HEADERS += \
     imageconverter.h \
     imageconverterdialog.h \
     color.h \
     lameimage.h \
+    imagefunctions.h \
 
 FORMS += \
     imageconverterdialog.ui \
