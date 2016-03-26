@@ -153,10 +153,10 @@ int main(int argc, char *argv[])
         }
     }
 
-    imageConverter.setFrameSize(framewidth, frameheight);
     imageConverter.setScaleFactor(scale);
     imageConverter.setDynamicRange(range);
     imageConverter.recolor();
+    imageConverter.setFrameSize(framewidth, frameheight);
 
 //    if (parser.isSet(argView))
 //        imageConverter.preview();
