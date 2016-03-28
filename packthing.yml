@@ -1,5 +1,5 @@
-name: img2dat
-package: img2dat
+name: LSImage 
+package: lsimage
 org: LameStation LLC
 url: http://www.lamestation.com
 maintainer: LameStation
@@ -8,7 +8,7 @@ copyright: 2013-2015
 license: GPLv3
 tagline: LameStation image converter
 description: Convert images into LameGFX sprite objects
-master: img2dat
+master: lsimage
 
 target: 
   deb: 
@@ -19,10 +19,10 @@ target:
     category: "public.app-category.developer-tools"
 
 repos: 
-    img2dat:
-        url: https://github.com/lamestation/img2dat.git
+    lsimage:
+        url: https://github.com/lamestation/lsimage.git
         builder: qmake
         files:
-            lsimageconverter:
+            lsimage:
                 name: LSImage
                 icon: icons/img.png
