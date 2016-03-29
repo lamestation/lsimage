@@ -16,6 +16,8 @@ class ImageConverterDialog : public QWidget
     QString _filename;
     ImageConverter _converter;
 
+    ColorTable _colors; 
+    QString _colorkey;
     QColor _transparent;
 
     float _scale;
@@ -29,6 +31,8 @@ class ImageConverterDialog : public QWidget
 public:
     explicit ImageConverterDialog(QWidget *parent = 0);
     ~ImageConverterDialog();
+
+    void setColorKey(QString key = "Plain");
     void setTransparentColor(QColor color = QColor(255, 0, 255));
     void setScale(float scale = 1.0);
     void setRange(int range = 55);
@@ -54,4 +58,6 @@ public slots:
     void zoomChanged();
     void rangeChanged();
     void offsetChanged();
+    void colorPaletteChanged();
+    void transparentChanged();
 };

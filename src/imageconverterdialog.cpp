@@ -20,6 +20,13 @@ ImageConverterDialog::ImageConverterDialog(QWidget *parent)
 
     _zoom = 4;
 
+    foreach (QString key, _colors.keys())
+    {
+        ui.colorPalette->addItem(key);
+    }
+
+    ui.colorPalette->setCurrentIndex(ui.colorPalette->findText("White on Blue"));
+
     connect(ui.openButton,  SIGNAL(clicked()),                  this, SLOT(open()));
     connect(ui.exportButton,SIGNAL(clicked()),                  this, SLOT(exportFile()));
     connect(ui.frameEnable, SIGNAL(toggled(bool)),              this, SLOT(setFrameSizeEnabled(bool)));
@@ -30,13 +37,25 @@ ImageConverterDialog::ImageConverterDialog(QWidget *parent)
     connect(ui.range,       SIGNAL(valueChanged(int)),          this, SLOT(rangeChanged()));
     connect(ui.offset,      SIGNAL(valueChanged(int)),          this, SLOT(offsetChanged()));
     connect(ui.zoom,        SIGNAL(currentIndexChanged(int)),   this, SLOT(zoomChanged()));
+    connect(ui.colorPalette,SIGNAL(currentIndexChanged(int)),   this, SLOT(colorPaletteChanged()));
+    connect(ui.transparent, SIGNAL(colorChanged()),             this, SLOT(transparentChanged()));
 
     setTransparentColor();
+    setColorKey("White on Blue");
     disable();
 }
 
 ImageConverterDialog::~ImageConverterDialog()
 {
+}
+
+void ImageConverterDialog::setColorKey(QString key)
+{
+    _colorkey = key;
+
+    QPalette p = ui.resultViewport->palette();
+    p.setColor(QPalette::Window, _colors[_colorkey][2]);
+    ui.resultViewport->setPalette(p);
 }
 
 void ImageConverterDialog::setTransparentColor(QColor color)
@@ -46,7 +65,6 @@ void ImageConverterDialog::setTransparentColor(QColor color)
     QPalette p = ui.originalViewport->palette();
     p.setColor(QPalette::Window, _transparent);
     ui.originalViewport->setPalette(p);
-    ui.resultViewport->setPalette(p);
 
     _converter.setTransparentColor(_transparent);
 }
@@ -92,12 +110,19 @@ void ImageConverterDialog::setEnabled(bool enabled)
     ui.scale->setEnabled(enabled);
     ui.range->setEnabled(enabled);
     ui.offset->setEnabled(enabled);
+    ui.colorPalette->setEnabled(enabled);
+    ui.transparent->setEnabled(enabled);
 }
 
 void ImageConverterDialog::setFrameSizeEnabled(bool enabled)
 {
+    LameImage img = _converter.originalImage();
+
     ui.frameWidth->setEnabled(enabled);
     ui.frameHeight->setEnabled(enabled);
+    ui.frameWidth->setMaximum(img.width());
+    ui.frameHeight->setMaximum(img.height());
+
     if (enabled)
     {
         _converter.setFrameSize(
@@ -107,7 +132,6 @@ void ImageConverterDialog::setFrameSizeEnabled(bool enabled)
     }
     else
     {
-        LameImage img = _converter.originalImage();
         _converter.setFrameSize(img.width(), img.height());
     }
 
@@ -146,19 +170,8 @@ void ImageConverterDialog::openFile(QString name)
 
     QImage img(name);
 
-//    int framew = 0, frameh = 0;
-//    QString fw = img.text("LameGFX:framesize:w");
-//    QString fh = img.text("LameGFX:framesize:h");
-//
-//    if (!fw.isEmpty())
-//        framew = fw.toInt();
-//
-//    if (!fh.isEmpty())
-//        frameh = fh.toInt();
-
     _converter.loadImage(img);
     _converter.setColorTable("Plain");
-//    _converter.setFrameSize(framew, frameh);
     _converter.setScaleFactor(1.0);
     _converter.setDynamicRange();
     _converter.recolor();
@@ -179,6 +192,7 @@ void ImageConverterDialog::updateImage()
 
     LameImage result = _converter.resultImage();
     ui.resultSize->setText(tr("(%1, %2)").arg(result.width()).arg(result.height()));
+    result.setColorTable(_colors[_colorkey]);
 
     result = result.scaleByFactor(_zoom);
     result = result.convertToFormat(QImage::Format_RGB32);
@@ -274,5 +288,17 @@ void ImageConverterDialog::offsetChanged()
 void ImageConverterDialog::zoomChanged()
 {
     _zoom = ui.zoom->currentText().remove(QChar('x'), Qt::CaseInsensitive).toInt();
+    updateImage();
+}
+
+void ImageConverterDialog::colorPaletteChanged()
+{
+    setColorKey(ui.colorPalette->currentText());
+    updateImage();
+}
+
+void ImageConverterDialog::transparentChanged()
+{
+    setTransparentColor(ui.transparent->color());
     updateImage();
 }

@@ -11,6 +11,7 @@ SOURCES += \
     imageconverter.cpp \
     imageconverterdialog.cpp \
     imagefunctions.cpp \
+    colorchooser.cpp \
 
 HEADERS += \
     imageconverter.h \
@@ -18,6 +19,7 @@ HEADERS += \
     color.h \
     lameimage.h \
     imagefunctions.h \
+    colorchooser.h \
 
 FORMS += \
     imageconverterdialog.ui \
