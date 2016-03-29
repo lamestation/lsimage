@@ -17,7 +17,7 @@
 QCommandLineOption argScale (QStringList() << "s" << "scale",  QObject::tr("Scale image by factor)"),  "FACTOR");
 QCommandLineOption argFrame (QStringList() << "f" << "frame",  QObject::tr("Cut into frames (ex. 16x8)"),  "WxH");
 QCommandLineOption argRange (QStringList() << "r" << "range",  QObject::tr("Set contrast range of output sprite."), "PERCENT");
-QCommandLineOption argPrint (QStringList() << "print",         QObject::tr("Print the output."));
+QCommandLineOption argPrint (QStringList() << "print",         QObject::tr("Print the output instead of writing to file."));
 //QCommandLineOption argView  (QStringList() << "view",          QObject::tr("Preview the resulting image."));
 QCommandLineOption argColor (QStringList() << "c" << "color",  QObject::tr("Change the preview color scheme. Options are 'plain', 'whiteblue', and 'redblack'."), "COLOR");
 
@@ -48,7 +48,7 @@ int main(int argc, char *argv[])
 
 
     // load image
-    if (parser.positionalArguments().length() == 0)
+    if (parser.positionalArguments().length() < 1)
     {
         qDebug() << "Error: Must provide filename of image to convert (e.g. 'img2dat awesome.png')";
         return 1;
@@ -165,13 +165,16 @@ int main(int argc, char *argv[])
 
     if (!parser.isSet(argPrint))
     {
-        QFile file(outfilename);
-        if (file.open(QIODevice::WriteOnly))
+        QFile outfile(outfilename);
+        if (!outfile.open(QIODevice::WriteOnly))
         {
-            QTextStream outstream(&file);
-            outstream << output;
+            qDebug() << "Error writing output:" << outfilename;
+            return 1;
         }
-        file.close();
+
+        QTextStream outstream(&outfile);
+        outstream << output;
+        outfile.close();
     }
     else
     {
