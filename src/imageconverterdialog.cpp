@@ -186,8 +186,6 @@ void ImageConverterDialog::openFile(QString name)
         return;
     }
 
-    qDebug() << "Opening file:" << name;
-
     _filename = name;
 
     QFileInfo fi(_filename);
