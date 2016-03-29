@@ -25,7 +25,7 @@ int main(int argc, char *argv[])
 {
     QCoreApplication app(argc, argv);
 
-    QCoreApplication::setOrganizationName("LameStation LLC");
+    QCoreApplication::setOrganizationName("LameStation");
     QCoreApplication::setOrganizationDomain("www.lamestation.com");
     QCoreApplication::setApplicationVersion(VERSION);
     QCoreApplication::setApplicationName(QObject::tr("img2dat"));

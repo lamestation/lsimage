@@ -5,15 +5,26 @@
 #include <QFileInfo>
 #include <QMessageBox>
 #include <QPainter>
+#include <QDir>
+#include <QSettings>
+#include <QKeyEvent>
+#include <QWheelEvent>
 
 ImageConverterDialog::ImageConverterDialog(QWidget *parent)
     : QWidget(parent)
 {
     ui.setupUi(this);
+    setFocus();
 
     scaleValidator.setRange(0.001, 4.0);
     scaleValidator.setDecimals(3);
     ui.scale->setValidator(&scaleValidator);
+
+    QSettings settings;
+    _directory = settings.value("directory", QDir::currentPath()).toString();
+    _colorkey = settings.value("colorkey", "White on Blue").toString();
+
+    restoreGeometry(settings.value("geometry").toByteArray());
 
     _title = tr("LSImage");
     setWindowTitle(_title);
@@ -25,7 +36,7 @@ ImageConverterDialog::ImageConverterDialog(QWidget *parent)
         ui.colorPalette->addItem(key);
     }
 
-    ui.colorPalette->setCurrentIndex(ui.colorPalette->findText("White on Blue"));
+    ui.colorPalette->setCurrentIndex(ui.colorPalette->findText(_colorkey));
 
     connect(ui.openButton,  SIGNAL(clicked()),                  this, SLOT(open()));
     connect(ui.exportButton,SIGNAL(clicked()),                  this, SLOT(exportFile()));
@@ -41,12 +52,20 @@ ImageConverterDialog::ImageConverterDialog(QWidget *parent)
     connect(ui.transparent, SIGNAL(colorChanged()),             this, SLOT(transparentChanged()));
 
     setTransparentColor();
-    setColorKey("White on Blue");
+    ui.transparent->setColor(_transparent);
+
+    setColorKey(_colorkey);
     disable();
+
+    installEventFilter(this);
 }
 
 ImageConverterDialog::~ImageConverterDialog()
 {
+    QSettings settings;
+    settings.setValue("directory",  _directory);
+    settings.setValue("colorkey",   _colorkey);
+    settings.setValue("geometry",   saveGeometry());
 }
 
 void ImageConverterDialog::setColorKey(QString key)
@@ -102,6 +121,8 @@ void ImageConverterDialog::enable()
 
 void ImageConverterDialog::setEnabled(bool enabled)
 {
+    _enabled = enabled;
+
     ui.exportButton->setEnabled(enabled);
     ui.frameEnable->setEnabled(enabled);
     ui.frameWidth->setEnabled(enabled);
@@ -141,11 +162,12 @@ void ImageConverterDialog::setFrameSizeEnabled(bool enabled)
 
 void ImageConverterDialog::open()
 {
-    QString fn = QFileDialog::getOpenFileName(this,
-                tr("Open File"), QDir::currentPath(), "PNG Files (*.png);;All Files (*)");
+    QString filename = QFileDialog::getOpenFileName(this,
+                tr("Open File"), _directory, "PNG Files (*.png);;All Files (*)");
 
-    if (!fn.isEmpty())
-        openFile(fn);
+    if (filename.isEmpty()) return;
+
+    openFile(filename);
 }
 
 void ImageConverterDialog::newFile()
@@ -164,9 +186,35 @@ void ImageConverterDialog::openFile(QString name)
         return;
     }
 
+    qDebug() << "Opening file:" << name;
+
     _filename = name;
 
+    QFileInfo fi(_filename);
+
+    if (_directory != fi.path())
+        _directory = fi.path();
+
     setWindowTitle(tr("%1 - %2").arg(QFileInfo(name).fileName()).arg(_title));
+
+    // set up directory browsing
+
+    QDir dir(_directory);
+    QStringList filters;
+    filters << "*.png" << "*.jpg" << "*.bmp";
+
+    _files = dir.entryList(filters);
+
+    for (int i = 0; i < _files.size(); i++)
+    {
+        if (_files[i] == fi.fileName())
+        {
+            _fileindex = i;
+            break;
+        }
+    }
+
+    // set up imaging
 
     QImage img(name);
 
@@ -301,4 +349,83 @@ void ImageConverterDialog::transparentChanged()
 {
     setTransparentColor(ui.transparent->color());
     updateImage();
+}
+
+bool ImageConverterDialog::eventFilter(QObject * target, QEvent * event)
+{
+    if (_enabled && event->type() == QEvent::KeyPress)
+    {
+        QKeyEvent * e = static_cast<QKeyEvent *>(event);
+        switch (e->key())
+        {
+        case (Qt::Key_Left):
+            previousImage();
+            return true;
+        case (Qt::Key_Right):
+            nextImage();
+            return true;
+        case (Qt::Key_Up):
+            adjustZoom(1);
+            return true;
+        case (Qt::Key_Down):
+            adjustZoom(-1);
+            return true;
+        }
+    }
+
+    if (_enabled && event->type() == QEvent::Wheel)
+    {
+        QWheelEvent * e = static_cast<QWheelEvent *>(event);
+
+        int numDegrees = e->delta() / 8;
+        int numSteps = numDegrees / 15;
+
+        if (e->orientation() == Qt::Horizontal)
+        {
+            if (numSteps < 0)
+                previousImage();
+            else if (numSteps > 0)
+                nextImage();
+        }
+        else
+        {
+            adjustZoom(numSteps);
+        }
+        e->accept();
+        return true;
+    }
+
+    return QWidget::eventFilter(target, event);
+}
+
+void ImageConverterDialog::adjustZoom(int adjust)
+{
+    int index = ui.zoom->currentIndex();
+    
+    if (adjust < 0 && index > 0)
+        index--;
+    else if (adjust > 0 && index < ui.zoom->count() - 1)
+        index++;
+    
+    ui.zoom->setCurrentIndex(index);
+}
+
+void ImageConverterDialog::previousImage()
+{
+    if (_fileindex > 0)
+        _fileindex--;
+    else
+        _fileindex = _files.size()-1;
+
+    openFile(_directory + "/" + _files[_fileindex]);
+}
+
+void ImageConverterDialog::nextImage()
+{
+    if (_fileindex < _files.size()-1)
+        _fileindex++;
+    else
+        _fileindex = 0;
+
+    openFile(_directory + "/" + _files[_fileindex]);
 }

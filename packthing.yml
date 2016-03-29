@@ -15,6 +15,9 @@ target:
     depends:
     categories: "Development;IDE"
     section: "Applications/Editors"
+    help2man:
+        - lsimage
+        - img2dat
   mac: 
     category: "public.app-category.developer-tools"
 

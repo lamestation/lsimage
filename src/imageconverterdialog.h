@@ -13,7 +13,13 @@ class ImageConverterDialog : public QWidget
     Q_OBJECT
 
     Ui::ImageConverterDialog ui;
+
+    bool _enabled;
     QString _filename;
+    QString _directory;
+    QStringList _files;
+    int _fileindex;
+
     ImageConverter _converter;
 
     ColorTable _colors; 
@@ -27,6 +33,8 @@ class ImageConverterDialog : public QWidget
     int _zoom;
 
     QString _title;
+
+    bool eventFilter(QObject * target, QEvent * event);
 
 public:
     explicit ImageConverterDialog(QWidget *parent = 0);
@@ -60,4 +68,8 @@ public slots:
     void offsetChanged();
     void colorPaletteChanged();
     void transparentChanged();
+
+    void adjustZoom(int adjust);
+    void previousImage();
+    void nextImage();
 };

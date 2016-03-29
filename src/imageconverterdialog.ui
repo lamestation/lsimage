@@ -7,8 +7,11 @@
     <x>0</x>
     <y>0</y>
     <width>707</width>
-    <height>421</height>
+    <height>415</height>
    </rect>
+  </property>
+  <property name="focusPolicy">
+   <enum>Qt::StrongFocus</enum>
   </property>
   <property name="windowTitle">
    <string>Image Converter</string>
@@ -32,6 +35,9 @@
            <height>16777215</height>
           </size>
          </property>
+         <property name="focusPolicy">
+          <enum>Qt::TabFocus</enum>
+         </property>
          <property name="toolTip">
           <string>Open an image.</string>
          </property>
@@ -54,6 +60,9 @@
            <height>16777215</height>
           </size>
          </property>
+         <property name="focusPolicy">
+          <enum>Qt::TabFocus</enum>
+         </property>
          <property name="toolTip">
           <string>Export to a Spin object.</string>
          </property>
@@ -72,6 +81,9 @@
           <font>
            <pointsize>10</pointsize>
           </font>
+         </property>
+         <property name="focusPolicy">
+          <enum>Qt::StrongFocus</enum>
          </property>
          <property name="toolTip">
           <string>Cut the image into frames.</string>
@@ -208,6 +220,11 @@
          <item>
           <property name="text">
            <string>4x</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>6x</string>
           </property>
          </item>
          <item>
@@ -1003,6 +1020,9 @@
            </disabled>
           </palette>
          </property>
+         <property name="focusPolicy">
+          <enum>Qt::NoFocus</enum>
+         </property>
          <property name="widgetResizable">
           <bool>true</bool>
          </property>
@@ -1012,7 +1032,7 @@
             <x>0</x>
             <y>0</y>
             <width>337</width>
-            <height>297</height>
+            <height>291</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -1598,6 +1618,9 @@
            </disabled>
           </palette>
          </property>
+         <property name="focusPolicy">
+          <enum>Qt::NoFocus</enum>
+         </property>
          <property name="widgetResizable">
           <bool>true</bool>
          </property>
@@ -1607,7 +1630,7 @@
             <x>0</x>
             <y>0</y>
             <width>336</width>
-            <height>297</height>
+            <height>291</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -2118,6 +2141,20 @@
    <header>colorchooser.h</header>
   </customwidget>
  </customwidgets>
+ <tabstops>
+  <tabstop>openButton</tabstop>
+  <tabstop>exportButton</tabstop>
+  <tabstop>frameEnable</tabstop>
+  <tabstop>frameWidth</tabstop>
+  <tabstop>frameHeight</tabstop>
+  <tabstop>zoom</tabstop>
+  <tabstop>scale</tabstop>
+  <tabstop>range</tabstop>
+  <tabstop>offset</tabstop>
+  <tabstop>colorPalette</tabstop>
+  <tabstop>originalViewport</tabstop>
+  <tabstop>resultViewport</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>
