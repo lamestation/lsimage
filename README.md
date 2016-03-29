@@ -1,4 +1,4 @@
-# img2dat
+# LSImage
 
 LameStation image converter
 
