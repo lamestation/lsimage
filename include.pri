@@ -8,4 +8,4 @@ win32-msvc* {
 	PRE_TARGETDEPS += $$PWD/lib/libimg2dat.a
 }
 
-#include($$PWD/icons/include.pri)
+include($$PWD/icons/include.pri)

@@ -6,19 +6,46 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>707</width>
-    <height>415</height>
+    <width>804</width>
+    <height>467</height>
    </rect>
   </property>
   <property name="focusPolicy">
    <enum>Qt::StrongFocus</enum>
   </property>
   <property name="windowTitle">
-   <string>Image Converter</string>
+   <string>LSImage</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="../icons/icons.qrc">
+    <normaloff>:/icons/lsimage/img.png</normaloff>:/icons/lsimage/img.png</iconset>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_5">
    <item>
+    <widget class="Line" name="line_5">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item>
     <layout class="QHBoxLayout" name="horizontalLayout_7">
+     <item>
+      <widget class="QLabel" name="logo">
+       <property name="maximumSize">
+        <size>
+         <width>64</width>
+         <height>64</height>
+        </size>
+       </property>
+       <property name="pixmap">
+        <pixmap resource="../icons/icons.qrc">:/icons/lsimage/img.png</pixmap>
+       </property>
+       <property name="scaledContents">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
      <item>
       <layout class="QVBoxLayout" name="verticalLayout_6">
        <item>
@@ -72,6 +99,13 @@
         </widget>
        </item>
       </layout>
+     </item>
+     <item>
+      <widget class="Line" name="line">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
+       </property>
+      </widget>
      </item>
      <item>
       <layout class="QHBoxLayout" name="horizontalLayout_2">
@@ -174,6 +208,13 @@
          </item>
         </layout>
        </item>
+       <item>
+        <widget class="Line" name="line_2">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+        </widget>
+       </item>
       </layout>
      </item>
      <item>
@@ -205,7 +246,7 @@
           <string>Zoom in and out.</string>
          </property>
          <property name="currentText">
-          <string>4x</string>
+          <string>1x</string>
          </property>
          <item>
           <property name="text">
@@ -402,6 +443,13 @@
         </widget>
        </item>
       </layout>
+     </item>
+     <item>
+      <widget class="Line" name="line_3">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
+       </property>
+      </widget>
      </item>
      <item>
       <layout class="QGridLayout" name="gridLayout_4">
@@ -933,6 +981,13 @@
     </layout>
    </item>
    <item>
+    <widget class="Line" name="line_4">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item>
     <layout class="QHBoxLayout" name="horizontalLayout_6">
      <item>
       <layout class="QVBoxLayout" name="verticalLayout_4">
@@ -940,6 +995,12 @@
         <layout class="QHBoxLayout" name="horizontalLayout">
          <item>
           <widget class="QLabel" name="originalTitle">
+           <property name="font">
+            <font>
+             <weight>75</weight>
+             <bold>true</bold>
+            </font>
+           </property>
            <property name="text">
             <string>Original</string>
            </property>
@@ -1031,8 +1092,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>337</width>
-            <height>291</height>
+            <width>385</width>
+            <height>325</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -1538,6 +1599,12 @@
         <layout class="QHBoxLayout" name="horizontalLayout_3">
          <item>
           <widget class="QLabel" name="resultTitle">
+           <property name="font">
+            <font>
+             <weight>75</weight>
+             <bold>true</bold>
+            </font>
+           </property>
            <property name="text">
             <string>Result</string>
            </property>
@@ -1629,8 +1696,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>336</width>
-            <height>291</height>
+            <width>385</width>
+            <height>325</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -2155,6 +2222,8 @@
   <tabstop>originalViewport</tabstop>
   <tabstop>resultViewport</tabstop>
  </tabstops>
- <resources/>
+ <resources>
+  <include location="../icons/icons.qrc"/>
+ </resources>
  <connections/>
 </ui>
