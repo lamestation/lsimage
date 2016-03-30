@@ -246,7 +246,7 @@
           <string>Zoom in and out.</string>
          </property>
          <property name="currentText">
-          <string>1x</string>
+          <string>4x</string>
          </property>
          <item>
           <property name="text">
