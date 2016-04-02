@@ -20,6 +20,7 @@ target:
         - img2dat
   dmg: 
     category: public.app-category.education
+    background: icons/mac-dmg.png
     bundle: lsimage
   inno:
     run: lsimage
