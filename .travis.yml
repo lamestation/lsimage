@@ -1,0 +1,65 @@
+sudo: required
+dist: trusty
+cache: apt
+language: cpp
+addons:
+  apt:
+    packages:
+      - help2man
+      - lintian
+      - cppcheck
+      - tree
+      - debhelper
+      - libudev-dev
+      - imagemagick
+      - qt5-default
+      - libqt5serialport5-dev
+matrix:
+  fast_finish: true
+
+  include:
+  - os: osx
+    compiler: clang
+    env:
+        PLATFORM=osx
+        PATH=/Users/travis/local/bin:$PATH
+        PYTHONPATH=$PYTHONPATH:$HOME/local/lib/python2.7/site-packages 
+
+  - os: linux
+    compiler: g++
+    env:
+        PLATFORM=linux
+        PATH=/home/travis/local/bin:$PATH
+        PYTHONPATH=$PYTHONPATH:$HOME/local/lib/python2.7/site-packages
+
+  - os: linux
+    compiler: clang
+    env:
+        PLATFORM=linux
+        PATH=/home/travis/local/bin:$PATH
+        PYTHONPATH=$PYTHONPATH:$HOME/local/lib/python2.7/site-packages
+        QMAKESPEC=linux-clang
+
+  allow_failures:
+  - os: linux
+    env:
+        PLATFORM=rpi
+        MNT=/home/travis/mnt
+
+before_install: "[ -f ./.travis/before_install.sh   ] || ./.travis/before_install.sh"
+install:        "[ -f ./.travis/install.sh          ] || ./.travis/install.sh"
+before_script:  "[ -f ./.travis/before_script.sh    ] || ./.travis/before_script.sh"
+script:         "[ -f ./.travis/script.sh           ] || ./.travis/script.sh"
+after_script:   "[ -f ./.travis/after_script.sh     ] || ./.travis/after_script.sh"
+
+deploy:
+  provider: releases
+  api_key:
+    secure: EGC2EEUazjk9PANpa5cbMbeTA1rVbt2EMQhmCRskj8DDcnD8ZszYkvhO8fE7iV+x0ZvCP/2jcijWuD44PPcphahU4YYsnVdw4c032rzLbL0ymcWnOIR6AcdQ6AucARMPZ3sSwpLRrStfj3E+0i7ssTuH2R5NMk/7n+GfEADFXckuueObOAfwGauYdIjZ3bU4Hm5nKe5CTkHjsl0Y2fpd/QqXI+EM2IfWzDcA+93qv0hxdmP/JRpcrKFox47jHqRp4+QtxrsZVrHdFLQWFQFKeT/AaRCaTDcp9BqlUAcN0fVXwrYXbFzk6J0vaciRspLw07SrcQ4FpLuvveTOIioH/dgUeC/eFKVB+hRdq4idMLcXQfULJsChHJREqNLXvvfdAZfvHsfElWDaSmyWGC1SiduTdxm2a1fqCzelHtzfZoSObjD/lLUKQ4N2pECdkvtIGhFZAvWtc7mv1mHaTXcYW5LEohipaUKuFercMI1s9WQYHXPpIl8j+ZMMzldIujNe6iL+70k+roe8RcuD+SEGdFUGnMV84avuKR1GpP2uG/p5ek9l3indTp+VOGhsU47s9G85tbUzvhbe2Wq0Ql1vGLP59uosnW5zEvibfkwmfNh5giVtHJ5HZpcA5/3Ty3fvK4IantkWxHMLXNSEFPYqvutPhQP+n9odFYuGK1Jo/kc=
+  file_glob: true
+  file: lsimage-*
+  skip_cleanup: true
+  on:
+    repo: lamestation/lsimage
+    tags: true
+    all_branches: true

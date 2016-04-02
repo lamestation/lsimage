@@ -1,0 +1,44 @@
+clone_depth: 200
+
+environment:
+    QTDIR: C:\Qt\5.4\mingw491_32
+    MINGW: C:\Qt\Tools\mingw491_32
+    PYTHON: "C:\\Python27"
+    PYTHON_VERSION: "2.7.x" # currently 2.7.9
+    PYTHON_ARCH: "32"
+
+configuration: Release
+
+install:
+- git submodule update --init --recursive
+- set PATH=%PATH%;%QTDIR%\bin;%MINGW%\bin;C:\Qt\Tools\QtCreator\bin;
+- set PATH=%PATH%;%PYTHON%;%PYTHON%\Scripts;
+- set PATH=%PATH%;"C:\Program Files (x86)\Inno Setup 5";
+- if defined APPVEYOR_REPO_TAG_NAME set BUILD_VERSION=%APPVEYOR_REPO_TAG_NAME%
+- if not defined APPVEYOR_REPO_TAG_NAME set BUILD_VERSION="0.0.0"
+- python --version
+- qmake -v
+- pip install Pillow
+- git clone https://github.com/lamestation/packthing
+- cd packthing
+- pip install -r requirements.txt
+- python setup.py install
+- cd ..
+- packthing -h
+- choco install -y InnoSetup
+
+build_script:
+    - packthing --version %BUILD_VERSION% inno
+
+artifacts:
+  - path: build\staging\*.exe
+    name: package
+
+deploy:
+  provider: GitHub
+  auth_token:
+    secure: fzeWUXQsuQt/fXP3AHehFOvkuahQeA9LSPe1orZPoSCsj5ys3v0nI98kBaOtpWY5
+  draft: false
+  prerelease: false
+  on:
+    appveyor_repo_tag: true

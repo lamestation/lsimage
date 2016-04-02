@@ -13,13 +13,16 @@ master: lsimage
 target: 
   deb: 
     depends:
-    categories: "Development;IDE"
-    section: "Applications/Editors"
+    categories: "Education;ComputerScience"
+    section: "Applications/Education"
     help2man:
         - lsimage
         - img2dat
-  mac: 
-    category: "public.app-category.developer-tools"
+  dmg: 
+    category: public.app-category.education
+    bundle: lsimage
+  inno:
+    run: lsimage
 
 repos: 
     lsimage:
